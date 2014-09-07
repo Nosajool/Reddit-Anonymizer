@@ -1,5 +1,9 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+	h1= title
+	p This is a #{title}
+	form(action="/anonymize", method="post")
+		label Reddit URL: 
+		input(type="text" name="reddit-url")
+		input(type="submit", value="Anonymize")
