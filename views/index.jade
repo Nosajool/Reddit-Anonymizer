@@ -3,7 +3,7 @@ extends layout
 block content
 	h1= title
 	p This is a #{title}
-	form(action="/anonymize", method="post")
+	form(action="/", method="post")
 		label Reddit URL: 
 		input(type="text" name="reddit_url")
 		input(type="submit", value="Anonymize")

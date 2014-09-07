@@ -26,7 +26,7 @@ router.get('/', function(req, res) {
   res.render('index', { title: 'Reddit Anonymizer' });
 });
 
-router.post('/anonymize', function(req, res){
+router.post('/', function(req, res){
 	unirest.get(req.body.reddit_url + ".json")
 		.end(function(response){
 			if(response.error){
@@ -49,8 +49,14 @@ router.post('/anonymize', function(req, res){
 					var currentComment = comment_data.children[i].data;
 					conversation.addComment(currentComment.author, currentComment.body);
 					// push the first comment of the children
-					while(typeof(currentComment.replies.data) != "undefined"){
-						console.log("got here");
+					while(typeof(currentComment.replies.data) != 'undefined'){
+						console.log("ADJFASF: " + JSON.stringify(currentComment));
+
+						// Check for "more"
+						if(currentComment.replies.data.children[0].kind == "more"){
+							break;
+						}
+
 						currentComment = currentComment.replies.data.children[0].data;
 						conversation.addComment(currentComment.author, currentComment.body);
 					}
