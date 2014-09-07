@@ -8,6 +8,10 @@ block content
 		input(type="text" name="reddit_url")
 		input(type="submit", value="Anonymize")
 	
-	if comments	
-		each comment in comments
-			li #{comment.user} | #{comment.body}
+	if conversations
+		ul
+		each conversation in conversations
+			if conversation.comments
+				ul
+				each comment in conversation.comments
+					li #{comment.user} | #{comment.body}
