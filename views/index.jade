@@ -10,4 +10,4 @@ block content
 	
 	if comments	
 		each comment in comments
-			li= comment
+			li #{comment.user} | #{comment.body}
