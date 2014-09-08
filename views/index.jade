@@ -5,7 +5,7 @@ mixin startList(convo)
 		+list(convo)
 
 mixin list(convo)
-	li #{convo.user} | #{convo.body}
+	li #{convo.user} | #{convo.name} | #{convo.body}
 	if convo.children && convo.children[0]
 			ul
 				each child in convo.children
