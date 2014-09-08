@@ -91,6 +91,8 @@ router.get('/', function(req, res) {
 });
 
 router.post('/', function(req, res) {
+	nameMap = new HashMap();
+	nameSet = new FastSet();
 	importNames(req.body.theme);
 	unirest.get(req.body.reddit_url + ".json").end(function(response) {
 		if(response.error) {
