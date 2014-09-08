@@ -2,24 +2,45 @@ var express = require('express');
 var router = express.Router();
 var unirest = require('unirest');
 
-var MAX_NUMBER_OF_CONVERSATIONS = 5;
+var MAX_NUMBER_OF_CONVERSATIONS = 1;
 
-function Comment(user, body){
+// function Comment(user, body){
+// 	this.user = user;
+// 	this.body = body;
+// }
+
+function Conversation(user, body){
+	this.children = [];
 	this.user = user;
 	this.body = body;
 }
 
-function Conversation(){
-	this.comments = [];
+Conversation.prototype.addChildConversation = function(childConvo) {
+	this.children.push(childConvo);
 }
 
-Conversation.prototype.addComment = function(user, body){
-	this.comments.push(new Comment(user, body));
+Conversation.prototype.addChild = function(user, body){
+	this.children.push(new Conversation(user, body));
 };
 
-Conversation.prototype.getComments = function(){
-	return this.comments;
+Conversation.prototype.getChildren = function(){
+	return this.children;
 };
+
+Conversation.prototype.populateReplies = function(currentComment) {
+	var i = 0;
+	var replyData = currentComment.replies.data;
+	if (typeof(replyData) != 'undefined' && replyData.children[i] != 'undefined') {
+		if (replyData.children[i].kind != "more") {
+			console.log(replyData);
+			console.log(replyData.children[i].data);
+			console.log(replyData.children[i].data.author);
+			var reply = new Conversation(replyData.children[i].data.author, replyData.children[i].data.body);
+			reply.populateReplies(replyData.children[i].data)
+			this.addChildConversation(reply);
+		}
+	}
+}
 
 /* GET home page. */
 router.get('/', function(req, res) {
@@ -43,26 +64,13 @@ router.post('/', function(req, res){
 				}
 
 				for(var i = 0; i < num_conversations; i++){
-					var conversation = new Conversation();
-
-					// push the first comment
+					// push the first comment of conversation
 					var currentComment = comment_data.children[i].data;
-					conversation.addComment(currentComment.author, currentComment.body);
-					// push the first comment of the children
-					while(typeof(currentComment.replies.data) != 'undefined'){
-						console.log("ADJFASF: " + JSON.stringify(currentComment));
-
-						// Check for "more"
-						if(currentComment.replies.data.children[0].kind == "more"){
-							break;
-						}
-
-						currentComment = currentComment.replies.data.children[0].data;
-						conversation.addComment(currentComment.author, currentComment.body);
-					}
+					var conversation = new Conversation(currentComment.author, currentComment.body);
+					// populate first comment's replies
+					conversation.populateReplies(currentComment);
 
 					conversations.push(conversation);
-					console.log(conversation);
 				}
 
 				res.render('index', { title: 'Reddit Anonymizer', conversations: conversations});

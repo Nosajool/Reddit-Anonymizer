@@ -1,5 +1,16 @@
 extends layout
 
+mixin startList(convo)
+	ul
+		+list(convo)
+
+mixin list(convo)
+	li #{convo.user} | #{convo.body}
+	if convo.children
+		ul
+			each child in convo.children
+				+list(child)
+
 block content
 	h1= title
 	p This is a #{title}
@@ -9,9 +20,5 @@ block content
 		input(type="submit", value="Anonymize")
 	
 	if conversations
-		ul
 		each conversation in conversations
-			if conversation.comments
-				ul
-				each comment in conversation.comments
-					li #{comment.user} | #{comment.body}
+			+startList(conversation)
