@@ -11,4 +11,14 @@ ul {
 	list-style-type: none;
 	border-color: #000;
 	border-left: 0.1em;
+	padding-left: 30px;
+}
+
+.header{
+	width: 100%;
+}
+
+.main-input {
+	width: 30% !important;
+	margin-bottom: 1em !important;
 }
