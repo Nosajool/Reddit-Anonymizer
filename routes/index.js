@@ -3,6 +3,7 @@ var router = express.Router();
 var unirest = require('unirest');
 var HashMap = require('hashmap').HashMap;
 var FastSet = require("collections/fast-set");
+var nameData = require("../data/name_data");
 
 var MAX_NUMBER_OF_CONVERSATIONS = 1;
 
@@ -10,27 +11,28 @@ var MAX_NUMBER_OF_CONVERSATIONS = 1;
 var nameMap = new HashMap();
 var nameSet = new FastSet();
 
-var names = [
-	"bill",
-	"bob",
-	"yo",
-	"a",
-	"jam",
-	"rock",
-	"paper",
-	"scissors",
-	"mouse",
-	"comment_data",
-	"data",
-	"floor",
-	"blah",
-	"ok",
-	"MAX_NUMBER_OF_CONVERSATIONS"
-];
+function themeArray(theme){
+	console.log(theme);
+	switch(theme){
+		case "Harry Potter":
+			console.log("hp");
+			return nameData.hp();
+			break;
+		case "Big Bang Theory":
+			console.log("bbt");
+			return nameData.bbt();
+			break;
+		default:
+			console.log("default");
+			return nameData.hp();
+			break;
+	}
+}
 
-function importNames() {
-	for(var i = 0; i < names.length; i++) {
-		nameSet.add(names[i]);
+function importNames(theme) {
+	var themes = themeArray(theme);
+	for(var i = 0; i < themes.length; i++) {
+		nameSet.add(themes[i]);
 	}
 }
 
@@ -89,7 +91,7 @@ router.get('/', function(req, res) {
 });
 
 router.post('/', function(req, res) {
-	importNames();
+	importNames(req.body.theme);
 	unirest.get(req.body.reddit_url + ".json").end(function(response) {
 		if(response.error) {
 			res.send("Invalid URL");

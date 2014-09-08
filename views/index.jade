@@ -5,7 +5,7 @@ mixin startList(convo)
 		+list(convo)
 
 mixin list(convo)
-	li #{convo.user} | #{convo.name} | #{convo.body}
+	li #{convo.name}: #{convo.body}
 	if convo.children && convo.children[0]
 			ul
 				each child in convo.children
@@ -17,6 +17,9 @@ block content
 	form(action="/", method="post")
 		label Reddit URL: 
 		input(type="text" name="reddit_url")
+		select(name="theme")
+			option(value="Harry Potter") Harry Potter
+			option(value="Big Bang Theory") Big Bang Theory
 		input(type="submit", value="Anonymize")
 	
 	if conversations
