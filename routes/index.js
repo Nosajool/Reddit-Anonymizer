@@ -32,9 +32,6 @@ Conversation.prototype.populateReplies = function(currentComment) {
 	var replyData = currentComment.replies.data;
 	while (typeof(replyData) != 'undefined' && typeof(replyData.children[i]) != 'undefined') {
 		if (replyData.children[i].kind != "more") {
-			console.log(replyData);
-			console.log(replyData.children[i].data);
-			console.log(replyData.children[i].data.author);
 			var reply = new Conversation(replyData.children[i].data.author, replyData.children[i].data.body);
 			reply.populateReplies(replyData.children[i].data)
 			this.addChildConversation(reply);
