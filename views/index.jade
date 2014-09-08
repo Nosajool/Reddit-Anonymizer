@@ -6,10 +6,10 @@ mixin startList(convo)
 
 mixin list(convo)
 	li #{convo.user} | #{convo.body}
-	if convo.children
-		ul
-			each child in convo.children
-				+list(child)
+	if convo.children && convo.children[0]
+			ul
+				each child in convo.children
+					+list(child)
 
 block content
 	h1= title

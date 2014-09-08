@@ -6,3 +6,9 @@ body {
 a {
   color: #00B7FF;
 }
+
+ul {
+	list-style-type: none;
+	border-color: #000;
+	border-left: 0.1em;
+}

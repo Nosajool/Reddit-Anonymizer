@@ -1,0 +1,97 @@
+diff --git a/public/stylesheets/style.css b/public/stylesheets/style.css
+index 30e047d..30aaf22 100644
+--- a/public/stylesheets/style.css
++++ b/public/stylesheets/style.css
+@@ -5,4 +5,10 @@ body {
+ 
+ a {
+   color: #00B7FF;
++}
++
++ul {
++	list-style-type: none;
++	border-color: #000;
++	border-left: 0.1em;
+ }
+\ No newline at end of file
+diff --git a/routes/index.js b/routes/index.js
+index 2ae2c61..0420969 100644
+--- a/routes/index.js
++++ b/routes/index.js
+@@ -46,34 +46,33 @@ router.get('/', function(req, res) {
+ });
+ 
+ router.post('/', function(req, res){
+-	unirest.get(req.body.reddit_url + ".json")
+-		.end(function(response){
+-			if(response.error){
+-				res.send("Invalid URL");
+-			}
+-			else{
+-				var thread = response.body[0].data.children[0].data;
+-				var comment_data = response.body[1].data;
+-				var num_conversations = thread.num_comments;
+-				var conversations = [];
+-
+-				if(num_conversations > MAX_NUMBER_OF_CONVERSATIONS){
+-					num_conversations = MAX_NUMBER_OF_CONVERSATIONS;
+-				}
++	unirest.get(req.body.reddit_url + ".json").end(function(response){
++		if(response.error){
++			res.send("Invalid URL");
++		}
++		else{
++			var thread = response.body[0].data.children[0].data;
++			var comment_data = response.body[1].data;
++			var num_conversations = thread.num_comments;
++			var conversations = [];
+ 
+-				for(var i = 0; i < num_conversations; i++){
+-					// push the first comment of conversation
+-					var currentComment = comment_data.children[i].data;
+-					var conversation = new Conversation(currentComment.author, currentComment.body);
+-					// populate first comment's replies
+-					conversation.populateReplies(currentComment);
++			if(num_conversations > MAX_NUMBER_OF_CONVERSATIONS){
++				num_conversations = MAX_NUMBER_OF_CONVERSATIONS;
++			}
+ 
+-					conversations.push(conversation);
+-				}
++			for(var i = 0; i < num_conversations; i++){
++				// push the first comment of conversation
++				var currentComment = comment_data.children[i].data;
++				var conversation = new Conversation(currentComment.author, currentComment.body);
++				// populate first comment's replies
++				conversation.populateReplies(currentComment);
+ 
+-				res.render('index', { title: 'Reddit Anonymizer', conversations: conversations});
++				conversations.push(conversation);
+ 			}
+-		});
++
++			res.render('index', { title: 'Reddit Anonymizer', conversations: conversations});
++		}
++	});
+ });
+ 
+ module.exports = router;
+diff --git a/views/index.jade b/views/index.jade
+index 9e3a155..be37e1f 100644
+--- a/views/index.jade
++++ b/views/index.jade
+@@ -6,10 +6,10 @@ mixin startList(convo)
+ 
+ mixin list(convo)
+ 	li #{convo.user} | #{convo.body}
+-	if convo.children
+-		ul
+-			each child in convo.children
+-				+list(child)
++	if convo.children && convo.children[0]
++			ul
++				each child in convo.children
++					+list(child)
+ 
+ block content
+ 	h1= title
