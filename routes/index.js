@@ -30,7 +30,7 @@ Conversation.prototype.getChildren = function(){
 Conversation.prototype.populateReplies = function(currentComment) {
 	var i = 0;
 	var replyData = currentComment.replies.data;
-	if (typeof(replyData) != 'undefined' && replyData.children[i] != 'undefined') {
+	while (typeof(replyData) != 'undefined' && typeof(replyData.children[i]) != 'undefined') {
 		if (replyData.children[i].kind != "more") {
 			console.log(replyData);
 			console.log(replyData.children[i].data);
@@ -39,6 +39,7 @@ Conversation.prototype.populateReplies = function(currentComment) {
 			reply.populateReplies(replyData.children[i].data)
 			this.addChildConversation(reply);
 		}
+		i++;
 	}
 }
 
