@@ -3,7 +3,6 @@ var router = express.Router();
 var unirest = require('unirest');
 var HashMap = require('hashmap').HashMap;
 var FastSet = require("collections/fast-set");
-var nameData = require("../data/name_data");
 
 var mongo = require('mongodb');
 var monk = require('monk');
@@ -15,27 +14,33 @@ var collection = db.get('namecollection');
 var nameMap = new HashMap();
 var nameSet = new FastSet();
 
+function fetchFromDB(themeName, callback){
+	collection.find({ theme: themeName }, function(err, docs){
+		if(err){
+			callback("error");
+		}
+		var names = [];
+		for(var i = 0; i < docs.length; i++){
+  			names.push(docs[i].name);
+  		}
+  		callback(names);
+	});
+}
+
 function themeArray(theme, callback){
 	console.log(theme);
-	var names = [];
-	switch(theme){
-		case "Harry Potter":
-		  	collection.find({ theme: "Harry Potter" }, function(err, docs){
-		  		for(var i = 0; i < docs.length; i++){
-		  			names.push(docs[i].name);
-		  		}
-			  	return callback(names);
-		  	});
-			break;
-		case "Big Bang Theory":
-			console.log("bbt");
-			return callback(nameData.bbt());
-			break;
-		default:
-			console.log("default");
-			return callback(nameData.bbt());
-			break;
-	}
+	fetchFromDB(theme, function(names){
+		// If the theme chosen does not exist in the database, default to harry potter
+		if(names === "error"){
+			fetchFromDB("Harry Potter", function(hpNames){
+				return callback(hpNames);
+			})
+		}
+		// The theme exists in the database
+		else{
+			return callback(names);
+		}
+	})
 }
 
 function importNames(theme, callback) {

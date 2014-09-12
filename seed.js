@@ -20,11 +20,46 @@ var hpData = [
 	"Bill",
 	"Bob"
 ];
+
+var bbtData = [
+	"Leonard Hofstadter",
+	"Sheldon Cooper",
+	"Howard Wolowitz",
+	"Penny",
+	"Raj Koothrappali",
+	"Leslie Winkle",
+	"Bernadette Rostenkowski-Wolowitz",
+	"Amy Farrah Fowler",
+	"Stuart Bloom",
+	"Alex Jensen",
+	"Barry Kripke",
+	"Beverly Hofstadter",
+	"Dr. Eric Gablehauser",
+	"Dr. and Mrs. Koothrappali",
+	"Lucy",
+	"Mary Cooper",
+	"Priya Koothrappali",
+	"Stephanie Barnett",	
+	"Wil Wheaton",
+	"Mrs. Wolowitz",
+	"Zack Johnson"
+];
+
 for(var i = 0; i < hpData.length; i++){
 	console.log("Adding " + hpData[i] + " to Harry Potter");
 	collection.insert({
 		name: hpData[i],
 		theme: "Harry Potter"
+	}, function(err, doc){
+		if(err) throw err;
+	});
+}
+
+for(var i = 0; i < bbtData.length; i++){
+	console.log("Adding " + bbtData[i] + " to Big Bang Theory");
+	collection.insert({
+		name: bbtData[i],
+		theme: "Big Bang Theory"
 	}, function(err, doc){
 		if(err) throw err;
 	});
