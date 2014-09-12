@@ -22,3 +22,7 @@ ul {
 	width: 30% !important;
 	margin-bottom: 1em !important;
 }
+
+.comment-name{
+	font-weight: bold;
+}

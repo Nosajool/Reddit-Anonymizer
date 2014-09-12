@@ -5,7 +5,7 @@ mixin startList(convo)
 		+list(convo)
 
 mixin list(convo)
-	li #{convo.name}: #{convo.body}
+	li <span class="comment-name">#{convo.name}:</span> #{convo.body}
 	if convo.children && convo.children[0]
 		ul
 			each child in convo.children
