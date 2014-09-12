@@ -1,17 +1,62 @@
 var express = require('express');
 var router = express.Router();
 var unirest = require('unirest');
+var HashMap = require('hashmap').HashMap;
+var FastSet = require("collections/fast-set");
+var nameData = require("../data/name_data");
 
 var MAX_NUMBER_OF_CONVERSATIONS = 1;
 
-// function Comment(user, body){
-// 	this.user = user;
-// 	this.body = body;
-// }
 
-function Conversation(user, body){
+var nameMap = new HashMap();
+var nameSet = new FastSet();
+
+function themeArray(theme){
+	console.log(theme);
+	switch(theme){
+		case "Harry Potter":
+			console.log("hp");
+			return nameData.hp();
+			break;
+		case "Big Bang Theory":
+			console.log("bbt");
+			return nameData.bbt();
+			break;
+		default:
+			console.log("default");
+			return nameData.hp();
+			break;
+	}
+}
+
+function importNames(theme) {
+	var themes = themeArray(theme);
+	for(var i = 0; i < themes.length; i++) {
+		nameSet.add(themes[i]);
+	}
+}
+
+function getNewNameFromList() {
+	var rand_num = Math.floor((Math.random() * (nameSet.length-1)) + 0); 
+	var newName = nameSet.toArray()[rand_num];
+	nameSet.delete(newName);
+	return newName;
+}
+
+function getName(name) {
+	if(nameMap.has(name)) {
+		return nameMap.get(name);
+	} else {
+		var newName = getNewNameFromList();
+		nameMap.set(name, newName);
+		return newName;
+	}
+}
+
+function Conversation(user, body) {
 	this.children = [];
 	this.user = user;
+	this.name = getName(user);
 	this.body = body;
 }
 
@@ -19,11 +64,11 @@ Conversation.prototype.addChildConversation = function(childConvo) {
 	this.children.push(childConvo);
 }
 
-Conversation.prototype.addChild = function(user, body){
+Conversation.prototype.addChild = function(user, body) {
 	this.children.push(new Conversation(user, body));
 };
 
-Conversation.prototype.getChildren = function(){
+Conversation.prototype.getChildren = function() {
 	return this.children;
 };
 
@@ -45,9 +90,12 @@ router.get('/', function(req, res) {
   res.render('index', { title: 'Reddit Anonymizer' });
 });
 
-router.post('/', function(req, res){
-	unirest.get(req.body.reddit_url + ".json").end(function(response){
-		if(response.error){
+router.post('/', function(req, res) {
+	nameMap = new HashMap();
+	nameSet = new FastSet();
+	importNames(req.body.theme);
+	unirest.get(req.body.reddit_url + ".json").end(function(response) {
+		if(response.error) {
 			res.send("Invalid URL");
 		}
 		else{
@@ -56,11 +104,11 @@ router.post('/', function(req, res){
 			var num_conversations = thread.num_comments;
 			var conversations = [];
 
-			if(num_conversations > MAX_NUMBER_OF_CONVERSATIONS){
+			if(num_conversations > MAX_NUMBER_OF_CONVERSATIONS) {
 				num_conversations = MAX_NUMBER_OF_CONVERSATIONS;
 			}
 
-			for(var i = 0; i < num_conversations; i++){
+			for(var i = 0; i < num_conversations; i++) {
 				// push the first comment of conversation
 				var currentComment = comment_data.children[i].data;
 				var conversation = new Conversation(currentComment.author, currentComment.body);
