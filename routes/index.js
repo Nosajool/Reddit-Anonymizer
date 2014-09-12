@@ -5,35 +5,46 @@ var HashMap = require('hashmap').HashMap;
 var FastSet = require("collections/fast-set");
 var nameData = require("../data/name_data");
 
-var MAX_NUMBER_OF_CONVERSATIONS = 1;
+var mongo = require('mongodb');
+var monk = require('monk');
+var db = monk('localhost:27017/jammedtoast');
 
+var MAX_NUMBER_OF_CONVERSATIONS = 1;
+var collection = db.get('namecollection');
 
 var nameMap = new HashMap();
 var nameSet = new FastSet();
 
-function themeArray(theme){
+function themeArray(theme, callback){
 	console.log(theme);
+	var names = [];
 	switch(theme){
 		case "Harry Potter":
-			console.log("hp");
-			return nameData.hp();
+		  	collection.find({ theme: "Harry Potter" }, function(err, docs){
+		  		for(var i = 0; i < docs.length; i++){
+		  			names.push(docs[i].name);
+		  		}
+			  	return callback(names);
+		  	});
 			break;
 		case "Big Bang Theory":
 			console.log("bbt");
-			return nameData.bbt();
+			return callback(nameData.bbt());
 			break;
 		default:
 			console.log("default");
-			return nameData.hp();
+			return callback(nameData.bbt());
 			break;
 	}
 }
 
-function importNames(theme) {
-	var themes = themeArray(theme);
-	for(var i = 0; i < themes.length; i++) {
-		nameSet.add(themes[i]);
-	}
+function importNames(theme, callback) {
+	themeArray(theme, function(themes){
+		for(var i = 0; i < themes.length; i++) {
+			nameSet.add(themes[i]);
+		}
+		callback();
+	});
 }
 
 function getNewNameFromList() {
@@ -93,8 +104,8 @@ router.get('/', function(req, res) {
 router.post('/', function(req, res) {
 	nameMap = new HashMap();
 	nameSet = new FastSet();
-	importNames(req.body.theme);
-	unirest.get(req.body.reddit_url + ".json").end(function(response) {
+	importNames(req.body.theme, function(){
+		unirest.get(req.body.reddit_url + ".json").end(function(response) {
 		if(response.error) {
 			res.send("Invalid URL");
 		}
@@ -120,6 +131,7 @@ router.post('/', function(req, res) {
 
 			res.render('index', { title: 'Reddit Anonymizer', conversations: conversations});
 		}
+		});
 	});
 });
 

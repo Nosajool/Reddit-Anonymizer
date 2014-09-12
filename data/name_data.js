@@ -1,20 +1,8 @@
-var hpData = [
-	"Harry Potter",
-	"Ron Weasley",
-	"Hermione Granger",
-	"Albus Dumbuldore",
-	"Severous Snape",
-	"Hannah Abbott",
-	"Katie Bell",
-	"scissors",
-	"mouse",
-	"comment_data",
-	"data",
-	"floor",
-	"blah",
-	"ok",
-	"MAX_NUMBER_OF_CONVERSATIONS"
-];
+var mongo = require('mongodb');
+var monk = require('monk');
+var db = monk('localhost:27017/jammedtoast');
+
+var collection = db.get('namecollection');
 
 var bbtData = [
 	"Leonard Hofstadter",
@@ -42,10 +30,19 @@ var bbtData = [
 
 module.exports = {
   hp: function(){
-  	return hpData;
+  	var names = [];
+  	collection.find({ theme: "Harry Potter" }, function(err, docs){
+  		for(var i = 0; i < docs.length; i++){
+  			names.push(docs[i].name);
+  		}
+	  	console.log(names);
+	  	return names;
+  	});
   },
 
   bbt: function(){
   	return bbtData;
   }
 };
+
+db.close();
