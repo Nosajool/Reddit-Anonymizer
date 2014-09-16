@@ -1,13 +1,13 @@
 extends layout
 
 mixin startList(convo)
-	ul
+	p
 		+list(convo)
 
 mixin list(convo)
-	li <span class="comment-name">#{convo.name}:</span> <span class="comment-body">#{convo.body}</span>
+	<span class="comment-name">#{convo.name}:</span> <span class="comment-body">#{convo.body}</span>
 	if convo.children && convo.children[0]
-		ul
+		p
 			each child in convo.children
 				+list(child)
 
