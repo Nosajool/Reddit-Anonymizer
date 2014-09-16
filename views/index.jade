@@ -5,7 +5,7 @@ mixin startList(convo)
 		+list(convo)
 
 mixin list(convo)
-	li <span class="comment-name">#{convo.name}:</span> #{convo.body}
+	li <span class="comment-name">#{convo.name}:</span> <span class="comment-body">#{convo.body}</span>
 	if convo.children && convo.children[0]
 		ul
 			each child in convo.children
@@ -16,12 +16,18 @@ block content
 		h1= title
 		p This is a #{title}
 		form(action="/", method="post")
-			input(type="text" name="reddit_url", class="form-control main-input", placeholder="Reddit URL")
-			select(name="theme", class="form-control main-input")
-				option(value="Harry Potter") Harry Potter
-				option(value="Big Bang Theory") Big Bang Theory
-			input(type="submit", class="btn btn-default main-input", value="Anonymize")
+			div.row.main-input
+				div.col-lg-4.col-lg-offset-4
+					input(type="text" name="reddit_url", class="form-control", placeholder="Reddit URL")
+			div.row.main-input
+				div.div.col-lg-4.col-lg-offset-4
+					select(name="theme", class="select-theme form-control select-theme")
+						option(value="Harry Potter") Harry Potter
+						option(value="Big Bang Theory") Big Bang 
+			div.row
+				input(type="submit", class="btn btn-default main-input", value="Anonymize")
 	
-	if conversations
-		each conversation in conversations
-			+startList(conversation)
+	div.comments-container
+		if conversations
+			each conversation in conversations
+				+startList(conversation)
