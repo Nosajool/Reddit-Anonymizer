@@ -3,37 +3,53 @@ var router = express.Router();
 var unirest = require('unirest');
 var HashMap = require('hashmap').HashMap;
 var FastSet = require("collections/fast-set");
-var nameData = require("../data/name_data");
+
+var mongo = require('mongodb');
+var monk = require('monk');
+var db = monk('localhost:27017/jammedtoast');
 
 var MAX_NUMBER_OF_CONVERSATIONS = 1;
-
+var collection = db.get('namecollection');
 
 var nameMap = new HashMap();
 var nameSet = new FastSet();
 
-function themeArray(theme){
-	console.log(theme);
-	switch(theme){
-		case "Harry Potter":
-			console.log("hp");
-			return nameData.hp();
-			break;
-		case "Big Bang Theory":
-			console.log("bbt");
-			return nameData.bbt();
-			break;
-		default:
-			console.log("default");
-			return nameData.hp();
-			break;
-	}
+function fetchFromDB(themeName, callback){
+	collection.find({ theme: themeName }, function(err, docs){
+		if(err){
+			callback("error");
+		}
+		var names = [];
+		for(var i = 0; i < docs.length; i++){
+  			names.push(docs[i].name);
+  		}
+  		callback(names);
+	});
 }
 
-function importNames(theme) {
-	var themes = themeArray(theme);
-	for(var i = 0; i < themes.length; i++) {
-		nameSet.add(themes[i]);
-	}
+function themeArray(theme, callback){
+	console.log(theme);
+	fetchFromDB(theme, function(names){
+		// If the theme chosen does not exist in the database, default to harry potter
+		if(names === "error"){
+			fetchFromDB("Harry Potter", function(hpNames){
+				return callback(hpNames);
+			})
+		}
+		// The theme exists in the database
+		else{
+			return callback(names);
+		}
+	})
+}
+
+function importNames(theme, callback) {
+	themeArray(theme, function(themes){
+		for(var i = 0; i < themes.length; i++) {
+			nameSet.add(themes[i]);
+		}
+		callback();
+	});
 }
 
 function getNewNameFromList() {
@@ -93,8 +109,8 @@ router.get('/', function(req, res) {
 router.post('/', function(req, res) {
 	nameMap = new HashMap();
 	nameSet = new FastSet();
-	importNames(req.body.theme);
-	unirest.get(req.body.reddit_url + ".json").end(function(response) {
+	importNames(req.body.theme, function(){
+		unirest.get(req.body.reddit_url + ".json").end(function(response) {
 		if(response.error) {
 			res.send("Invalid URL");
 		}
@@ -120,6 +136,7 @@ router.post('/', function(req, res) {
 
 			res.render('index', { title: 'Reddit Anonymizer', conversations: conversations});
 		}
+		});
 	});
 });
 
