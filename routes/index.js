@@ -102,6 +102,43 @@ Conversation.prototype.populateReplies = function(currentComment) {
 	}
 }
 
+function parseHeader(response){
+	var header = {};
+	var thread = response.body[0].data.children[0].data;
+
+	// Thread information
+	header.subreddit = thread.subreddit;
+	header.title = thread.title;
+	header.url = thread.url;
+	header.threadurl = "http://www.reddit.com" + thread.permalink;
+
+	return header;
+}
+
+function parseConversations(response){
+	//  Comment Data
+	var thread = response.body[0].data.children[0].data;
+	var comment_data = response.body[1].data;
+	var num_conversations = thread.num_comments;
+	var conversations = [];
+
+	if(num_conversations > MAX_NUMBER_OF_CONVERSATIONS) {
+		num_conversations = MAX_NUMBER_OF_CONVERSATIONS;
+	}
+
+	for(var i = 0; i < num_conversations; i++) {
+		// push the first comment of conversation
+		var currentComment = comment_data.children[i].data;
+		var conversation = new Conversation(currentComment.author, currentComment.body);
+		// populate first comment's replies
+		conversation.populateReplies(currentComment);
+
+		conversations.push(conversation);
+	}
+
+	return conversations;
+}
+
 function getFrontPageThreads(callback){
 	unirest.get("http://www.reddit.com/.json").end(function(response){
 		if(response.error) {
@@ -134,41 +171,15 @@ router.post('/', function(req, res) {
 	nameSet = new FastSet();
 	importNames(req.body.theme, function(){
 		unirest.get(req.body.reddit_url + ".json").end(function(response) {
-		if(response.error) {
-			res.send("Invalid URL");
-		}
-		else{
-			var header = {};
-			var thread = response.body[0].data.children[0].data;
-
-			// Thread information
-			header.subreddit = thread.subreddit;
-			header.title = thread.title;
-			header.url = thread.url;
-			header.threadurl = "http://www.reddit.com" + thread.permalink;
-
-
-			//  Comment Data
-			var comment_data = response.body[1].data;
-			var num_conversations = thread.num_comments;
-			var conversations = [];
-
-			if(num_conversations > MAX_NUMBER_OF_CONVERSATIONS) {
-				num_conversations = MAX_NUMBER_OF_CONVERSATIONS;
+			if(response.error) {
+				res.send("Invalid URL");
 			}
+			else{
+				var header = parseHeader(response);
+				var conversations = parseConversations(response);
 
-			for(var i = 0; i < num_conversations; i++) {
-				// push the first comment of conversation
-				var currentComment = comment_data.children[i].data;
-				var conversation = new Conversation(currentComment.author, currentComment.body);
-				// populate first comment's replies
-				conversation.populateReplies(currentComment);
-
-				conversations.push(conversation);
+				res.render('index', { title: 'Reddit Anonymizer', conversations: conversations, header: header });
 			}
-
-			res.render('index', { title: 'Reddit Anonymizer', conversations: conversations, header: header });
-		}
 		});
 	});
 });
