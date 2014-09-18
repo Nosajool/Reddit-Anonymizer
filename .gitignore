@@ -1,1 +1,7 @@
 npm-debug.log
+
+node_modules
+
+data/db/jammedtoast.0
+data/db/jammedtoast.1
+data/db/jammedtoast.ns
