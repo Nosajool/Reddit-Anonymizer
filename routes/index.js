@@ -9,6 +9,7 @@ var monk = require('monk');
 var db = monk('localhost:27017/jammedtoast');
 
 var MAX_NUMBER_OF_CONVERSATIONS = 1;
+var NUMBER_OF_FRONT_PAGE_THREADS = 5;
 var collection = db.get('namecollection');
 
 var nameMap = new HashMap();
@@ -101,9 +102,31 @@ Conversation.prototype.populateReplies = function(currentComment) {
 	}
 }
 
+function getFrontPageThreads(callback){
+	unirest.get("http://www.reddit.com/.json").end(function(response){
+		if(response.error) {
+			callback("error");
+		}
+		else {
+			var front_page_threads = [];
+			for(var i = 0; i < 5; i++){
+				front_page_threads.push(response.body.data.children[i].data.permalink);
+			}
+			callback(front_page_threads);
+		}
+	});
+}
+
 /* GET home page. */
 router.get('/', function(req, res) {
-  res.render('index', { title: 'Reddit Anonymizer' });
+	getFrontPageThreads(function(threads){
+		if(threads === "error"){
+			res.send("Reddit is down");
+		}
+		else {
+			res.render('index', { title: 'Reddit Anonymizer', front_page_threads: threads });
+		}
+	});
 });
 
 router.post('/', function(req, res) {
