@@ -17,23 +17,24 @@ var nameSet = new FastSet();
 
 function fetchFromDB(themeName, callback){
 	collection.find({ theme: themeName }, function(err, docs){
-		if(err){
-			callback("error");
-		}
-		var names = [];
-		for(var i = 0; i < docs.length; i++){
-  			names.push(docs[i].name);
-  		}
+		var names = "error";
+		if(docs.length > 0){
+			names = [];
+			for(var i = 0; i < docs.length; i++){
+	  			names.push(docs[i].name);
+	  		}	
+		}		
   		callback(names);
 	});
 }
 
 function themeArray(theme, callback){
-	console.log(theme);
+	console.log("theme passed in is: " + theme);
 	fetchFromDB(theme, function(names){
 		// If the theme chosen does not exist in the database, default to harry potter
-		if(names === "error"){
+		if(names === "error" || theme == "undefined"){
 			fetchFromDB("Harry Potter", function(hpNames){
+				console.log("Nothing specified. Resorting to Default");
 				return callback(hpNames);
 			})
 		}
@@ -147,7 +148,10 @@ function getFrontPageThreads(callback){
 		else {
 			var front_page_threads = [];
 			for(var i = 0; i < 5; i++){
-				front_page_threads.push(response.body.data.children[i].data.permalink);
+				var front_page_thread = {};
+				front_page_thread.url = response.body.data.children[i].data.permalink;
+				front_page_thread.title = response.body.data.children[i].data.title;
+				front_page_threads.push(front_page_thread);
 			}
 			callback(front_page_threads);
 		}

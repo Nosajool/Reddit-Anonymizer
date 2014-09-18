@@ -48,5 +48,5 @@ block content
 			div.front-page-container
 				each post in front_page_threads
 					form(action="/", method="post")
-						input(type="hidden" name="reddit_url", value="http://www.reddit.com#{post}")
-						input(type="submit", class="btn btn-default", value=post)
+						input(type="hidden" name="reddit_url", value="http://www.reddit.com#{post.url}")
+						input(type="submit", class="btn btn-default", value=post.title)
