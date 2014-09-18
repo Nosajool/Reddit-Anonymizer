@@ -182,7 +182,14 @@ router.post('/', function(req, res) {
 				var header = parseHeader(response);
 				var conversations = parseConversations(response);
 
-				res.render('index', { title: 'Reddit Anonymizer', conversations: conversations, header: header });
+				getFrontPageThreads(function(threads){
+					if(threads === "error"){
+						res.send("Reddit is down");
+					}
+					else {
+						res.render('index', { title: 'Reddit Anonymizer', conversations: conversations, header: header, front_page_threads: threads });
+					}
+				});
 			}
 		});
 	});
