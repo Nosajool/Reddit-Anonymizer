@@ -115,7 +115,17 @@ router.post('/', function(req, res) {
 			res.send("Invalid URL");
 		}
 		else{
+			var header = {};
 			var thread = response.body[0].data.children[0].data;
+
+			// Thread information
+			header.subreddit = thread.subreddit;
+			header.title = thread.title;
+			header.url = thread.url;
+			header.threadurl = "http://www.reddit.com" + thread.permalink;
+
+
+			//  Comment Data
 			var comment_data = response.body[1].data;
 			var num_conversations = thread.num_comments;
 			var conversations = [];
@@ -134,7 +144,7 @@ router.post('/', function(req, res) {
 				conversations.push(conversation);
 			}
 
-			res.render('index', { title: 'Reddit Anonymizer', conversations: conversations});
+			res.render('index', { title: 'Reddit Anonymizer', conversations: conversations, header: header });
 		}
 		});
 	});
