@@ -30,8 +30,11 @@ block content
 		div.thread-details-container
 			h3= header.title
 			h4 Subreddit: #{header.subreddit}
-			a(href=header.url class="btn btn-success") Original Link
-			a(href=header.threadurl class="btn btn-primary") Original Thread
+			div.row
+				div.col-md-2
+					a(href=header.url class="btn btn-success") Original Link
+				div.col-md-10
+					a(href=header.threadurl class="btn btn-primary") Original Thread
 		if conversations
 			each conversation in conversations
 				+startList(conversation)
