@@ -27,6 +27,10 @@ block content
 				input(type="submit", class="btn btn-default main-input", value="Anonymize")
 	
 	div.comments-container
+		h2= header.title
+		h3 Subreddit: #{header.subreddit}
+		a(href=header.url) Original Link
+		a(href=header.threadurl) Original Thread
 		if conversations
 			each conversation in conversations
 				+startList(conversation)
