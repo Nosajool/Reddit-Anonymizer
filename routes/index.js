@@ -172,7 +172,7 @@ router.post('/', function(req, res) {
 	importNames(req.body.theme, function(){
 		unirest.get(req.body.reddit_url + ".json").end(function(response) {
 			if(response.error) {
-				res.send("Invalid URL");
+				res.render('index', { title: 'Reddit Anonymizer', error: "Reddit URL not found" });
 			}
 			else{
 				var header = parseHeader(response);

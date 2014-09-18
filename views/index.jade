@@ -27,6 +27,9 @@ block content
 				input(type="submit", class="btn btn-default main-input", value="Anonymize")
 	
 	div.comments-container
+		if error
+			div.error-container
+				p=error
 		if header
 			div.thread-details-container
 				h3= header.title
@@ -40,7 +43,7 @@ block content
 		if conversations
 			each conversation in conversations
 				+startList(conversation)
-				
+
 		if front_page_threads
 			div.front-page-container
 				each post in front_page_threads
