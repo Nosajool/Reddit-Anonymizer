@@ -91,15 +91,13 @@ Conversation.prototype.getChildren = function() {
 };
 
 Conversation.prototype.populateReplies = function(currentComment) {
-	var i = 0;
 	var replyData = currentComment.replies.data;
-	while (typeof(replyData) != 'undefined' && typeof(replyData.children[i]) != 'undefined') {
-		if (replyData.children[i].kind != "more") {
-			var reply = new Conversation(replyData.children[i].data.author, replyData.children[i].data.body);
-			reply.populateReplies(replyData.children[i].data)
+	if (typeof(replyData) != 'undefined' && typeof(replyData.children[0]) != 'undefined') {
+		if (replyData.children[0].kind != "more") {
+			var reply = new Conversation(replyData.children[0].data.author, replyData.children[0].data.body);
+			reply.populateReplies(replyData.children[0].data)
 			this.addChildConversation(reply);
 		}
-		i++;
 	}
 }
 
